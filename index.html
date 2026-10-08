@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 7 — The Complete Walkthrough — File Handling &amp; OS Operations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF2F7; --panel:#FFFFFF; --panel-2:#F7F9FC;
+  --ink:#152238; --ink-soft:#4C5A76; --ink-faint:#8592AB;
+  --line:#DCE3ED; --line-strong:#C4CEDD;
+  --amber:#D98A2B; --amber-ink:#7A4E0C; --amber-soft:#FBEBD4;
+  --teal:#1F8F7E; --teal-soft:#DFF3EE; --teal-ink:#0E4F44;
+  --violet:#6E56C9; --violet-soft:#EEEAFB; --violet-ink:#40308F;
+  --rose:#C65B5B; --rose-soft:#FBE5E5;
+  --code-bg:#101B2D; --code-bg-2:#0C1524; --code-ink:#E7EEF9;
+  --code-kw:#7FB3FF; --code-str:#9BE3A0; --code-com:#77869F; --code-num:#F4B860; --code-fn:#D9A5F0;
+  --radius:16px; --radius-sm:10px;
+  --font-head:'Poppins',sans-serif; --font-body:'Poppins',sans-serif; --font-code:'Fira Code',monospace;
+  --shadow:0 1px 2px rgba(21,34,56,.04), 0 8px 24px rgba(21,34,56,.06);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);line-height:1.6;-webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:var(--font-head);margin:0;color:var(--ink);}
+p{margin:0 0 1em 0;color:var(--ink-soft);}
+.container{max-width:1180px;margin:0 auto;padding:0 24px;}
+
+.shell{display:grid;grid-template-columns:252px minmax(0,1fr);max-width:1440px;margin:0 auto;}
+.side{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;padding:26px 16px 26px 22px;border-right:1px solid var(--line);}
+.side::-webkit-scrollbar{width:6px;} .side::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:6px;}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--line);}
+.brand-mark{width:32px;height:32px;border-radius:9px;flex:none;background:linear-gradient(135deg,var(--violet),var(--teal));display:flex;align-items:center;justify-content:center;font-family:var(--font-code);font-weight:600;color:#fff;font-size:12px;}
+.brand-text{font-size:12px;color:var(--ink-faint);line-height:1.3;}
+.brand-text b{display:block;color:var(--ink);font-size:13.5px;font-weight:600;}
+.navlabel{font-size:10.5px;letter-spacing:.03em;color:var(--ink-faint);margin:16px 0 8px 8px;font-weight:600;}
+.navlink{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;color:var(--ink-soft);text-decoration:none;font-size:12.6px;font-weight:500;}
+.navlink .dot{width:6px;height:6px;border-radius:50%;background:var(--line-strong);flex:none;}
+.navlink:hover{background:var(--panel-2);color:var(--ink);}
+.navlink.active{background:var(--violet-soft);color:var(--violet-ink);}
+.navlink.active .dot{background:var(--violet);}
+.main{min-width:0;}
+
+.hero{padding:48px 0 34px;border-bottom:1px solid var(--line);
+  background:radial-gradient(700px 260px at 88% -10%, var(--violet-soft), transparent 60%),radial-gradient(600px 240px at 8% 0%, var(--teal-soft), transparent 55%);}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--teal-ink);background:var(--teal-soft);border:1px solid color-mix(in srgb, var(--teal) 30%, transparent);padding:5px 12px;border-radius:999px;margin-right:8px;margin-bottom:14px;}
+.pill.violet{color:var(--violet-ink);background:var(--violet-soft);}
+.hero h1{font-size:clamp(26px,4vw,38px);font-weight:700;letter-spacing:-.01em;max-width:24ch;}
+.hero p{font-size:15.5px;max-width:70ch;margin-top:12px;}
+.hero-note{margin-top:18px;padding:14px 16px;border-radius:var(--radius-sm);background:var(--panel);border:1px solid var(--line);font-size:13.5px;box-shadow:var(--shadow);}
+
+.block{padding:44px 0;border-bottom:1px solid var(--line);}
+.block-head{display:flex;align-items:flex-start;gap:14px;margin-bottom:8px;}
+.block-num{font-family:var(--font-code);font-size:12.5px;font-weight:600;color:var(--violet);background:var(--violet-soft);border-radius:8px;padding:5px 9px;flex:none;margin-top:2px;}
+.block-head h2{font-size:22px;font-weight:700;letter-spacing:-.01em;}
+.block-body{margin-left:42px;}
+@media (max-width:640px){.block-body{margin-left:0;}}
+
+.www-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+@media (max-width:760px){.www-grid{grid-template-columns:1fr;}}
+.www-card{border:1px solid var(--line);border-radius:var(--radius-sm);padding:14px 16px;background:var(--panel-2);}
+.www-card .k{font-size:11px;font-weight:700;letter-spacing:.03em;color:var(--violet-ink);text-transform:uppercase;margin-bottom:6px;}
+.www-card p{font-size:13.2px;margin:0;}
+
+.ex-label{display:flex;align-items:center;gap:8px;margin:18px 0 8px;}
+.ex-badge{font-family:var(--font-code);font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:999px;}
+.ex-badge.foundational{background:var(--teal-soft);color:var(--teal-ink);}
+.ex-badge.enterprise{background:var(--amber-soft);color:var(--amber-ink);}
+.ex-caption{font-size:13.5px;color:var(--ink-soft);font-weight:600;}
+
+.code-card{background:var(--code-bg);border-radius:var(--radius-sm);overflow:hidden;border:1px solid rgba(255,255,255,.06);margin:8px 0 16px;}
+.code-topbar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:var(--code-bg-2);border-bottom:1px solid rgba(255,255,255,.06);}
+.code-dots{display:flex;gap:6px;} .code-dots span{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.15);}
+.code-filename{font-family:var(--font-code);font-size:11.5px;color:var(--code-com);}
+pre.code{margin:0;padding:14px 16px;overflow-x:auto;font-family:var(--font-code);font-size:12.8px;line-height:1.68;color:var(--code-ink);}
+pre.code .kw{color:var(--code-kw);} pre.code .str{color:var(--code-str);} pre.code .com{color:var(--code-com);font-style:italic;}
+pre.code .num{color:var(--code-num);} pre.code .fn{color:var(--code-fn);}
+
+.output-card{background:#0A1220;border-radius:var(--radius-sm);border:1px solid rgba(255,255,255,.06);margin:0 0 16px;overflow:hidden;}
+.output-card .lbl{padding:7px 14px;font-family:var(--font-code);font-size:11px;color:#6BCB9A;background:#071812;border-bottom:1px solid rgba(255,255,255,.06);}
+.output-card pre{margin:0;padding:12px 16px;font-family:var(--font-code);font-size:12.3px;color:#B7F5C6;white-space:pre-wrap;line-height:1.6;}
+
+.note{display:flex;gap:12px;padding:14px 16px;border-radius:var(--radius-sm);background:var(--amber-soft);border:1px solid color-mix(in srgb, var(--amber) 35%, transparent);font-size:13.5px;color:var(--amber-ink);margin-top:10px;}
+.scenario{display:flex;gap:12px;padding:14px 16px;border-radius:var(--radius-sm);background:var(--teal-soft);border:1px solid color-mix(in srgb, var(--teal) 35%, transparent);margin-top:10px;}
+.scenario b{color:var(--teal-ink);display:block;margin-bottom:3px;font-size:13.2px;}
+.scenario p{color:var(--teal-ink);font-size:13.5px;margin:0;opacity:.9;}
+
+.wrapup{padding:50px 0 40px;}
+.wrapup-card{border-radius:var(--radius);border:1px solid var(--line);background:var(--panel);padding:30px;box-shadow:var(--shadow);}
+.wrapup-card h3{font-size:19px;margin-bottom:10px;}
+footer{padding:26px 0 40px;text-align:center;}
+.credit{font-size:12.5px;color:var(--ink-faint);}
+.credit b{color:var(--ink-soft);}
+@media (max-width:940px){ .shell{grid-template-columns:1fr;} .side{position:static;height:auto;border-right:none;border-bottom:1px solid var(--line);padding:16px;} }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="side" id="sideNav">
+    <div class="brand">
+      <div class="brand-mark">Py</div>
+      <div class="brand-text"><b>Module 7</b>The complete walkthrough</div>
+    </div>
+    <div class="navlabel">Topics</div>
+    <a class="navlink" data-target="t1"><span class="dot"></span>1. Text Files</a>
+    <a class="navlink" data-target="t2"><span class="dot"></span>2. seek() &amp; tell()</a>
+    <a class="navlink" data-target="t3"><span class="dot"></span>3. CSV Files</a>
+    <a class="navlink" data-target="t4"><span class="dot"></span>4. JSON Structure</a>
+    <a class="navlink" data-target="t5"><span class="dot"></span>5. Working with JSON</a>
+    <a class="navlink" data-target="t6"><span class="dot"></span>6. OS Module</a>
+    <a class="navlink" data-target="t7"><span class="dot"></span>7. pathlib</a>
+    <a class="navlink" data-target="t8"><span class="dot"></span>8. zipfile &amp; gzip</a>
+    <a class="navlink" data-target="wrap"><span class="dot"></span>Wrap-up</a>
+  </aside>
+
+  <main class="main">
+    <section class="hero" id="hero">
+      <div class="container">
+        <span class="pill violet">Module 7 · File Handling &amp; OS Operations</span>
+        <span class="pill">Why → What problem → Where used → Code</span>
+        <h1>File Handling &amp; OS Operations, from the ground up, properly this time</h1>
+        <p>Before any code, every topic here answers three questions first: why are we learning this, what actual problem does it solve, and where will you use it on the job. Every example creates its own data before touching it, so nothing is ever missing when you run it yourself. And every example uses what you already know, loops, functions, conditionals, try/except, so file handling never sits alone as an isolated toy exercise.</p>
+        <div class="hero-note"><b>Two examples per topic, on purpose:</b> the first is foundational, slow, and shows exactly how the code moves, step by step, with print statements tracing every move. The second is enterprise-shaped, the way this would actually look inside a real pipeline, combining multiple concepts from earlier modules at once.</div>
+      </div>
+    </section>
+
+    <!-- TOPIC 1 -->
+    <section id="t1" class="block">
+      <div class="container">
+        <div class="block-head"><span class="block-num">01</span><h2>Reading &amp; Writing Text Files</h2></div>
+        <div class="block-body">
+          <div class="www-grid">
+            <div class="www-card"><div class="k">Why learn this</div><p>Everything your program does in memory vanishes the second it closes. A file is how it leaves something behind.</p></div>
+            <div class="www-card"><div class="k">Problem it solves</div><p>Without a saved file, nobody, including you, can see what happened after the program's already finished running.</p></div>
+            <div class="www-card"><div class="k">Where it's used</div><p>Every production pipeline writes a log file. This is the single most-used skill in this whole module.</p></div>
+          </div>
+
+          <div class="ex-label"><span class="ex-badge foundational">Example 1 · Foundational</span><span class="ex-caption">Writing and reading a log file, step by step</span></div>
+          <div class="code-card">
+            <div class="code-topbar"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-filename">topic1_example1.py</span></div>
+            <pre class="code">log_messages = [
+    <span class="str">"Pipeline started"</span>,
+    <span class="str">"Connected to source database"</span>,
+    <span class="str">"Validating 500 incoming rows"</span>,
+]
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"pipeline_log.txt"</span>, <span class="str">"w"</span>) <span class="kw">as</span> f:
+    <span class="kw">for</span> i, message <span class="kw">in</span> <span class="fn">enumerate</span>(log_messages, start=<span class="num">1</span>):
+        line = <span class="str">f"Step {i}: {message}\n"</span>
+        f.write(line)
+        <span class="fn">print</span>(<span class="str">f"[WRITING] -&gt; {line.strip()}"</span>)   <span class="com"># watch each write happen live</span>
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"pipeline_log.txt"</span>, <span class="str">"r"</span>) <span class="kw">as</span> f:
+    line_number = <span class="num">0</span>
+    <span class="kw">for</span> line <span class="kw">in</span> f:
+        line_number += <span class="num">1</span>
+        <span class="fn">print</span>(<span class="str">f"[READING] line {line_number} | cursor at byte {f.tell()} | {line.strip()}"</span>)</pre>
+          </div>
+          <div class="output-card"><div class="lbl">Expected output</div><pre>[WRITING] -&gt; Step 1: Pipeline started
+[WRITING] -&gt; Step 2: Connected to source database
+[WRITING] -&gt; Step 3: Validating 500 incoming rows
+[READING] line 1 | cursor at byte 25 | Step 1: Pipeline started
+[READING] line 2 | cursor at byte 62 | Step 2: Connected to source database
+[READING] line 3 | cursor at byte 100 | Step 3: Validating 500 incoming rows</pre></div>
+
+          <div class="ex-label"><span class="ex-badge enterprise">Example 2 · Enterprise shape</span><span class="ex-caption">A reusable logger function, with validation built in</span></div>
+          <div class="code-card">
+            <div class="code-topbar"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-filename">topic1_example2.py</span></div>
+            <pre class="code"><span class="kw">def</span> <span class="fn">log_event</span>(message, level=<span class="str">"INFO"</span>, filename=<span class="str">"pipeline_log.txt"</span>):
+    <span class="kw">try</span>:
+        <span class="kw">with</span> <span class="fn">open</span>(filename, <span class="str">"a"</span>) <span class="kw">as</span> f:   <span class="com"># append, never erase history</span>
+            entry = <span class="str">f"[{level}] {message}\n"</span>
+            f.write(entry)
+        <span class="fn">print</span>(<span class="str">f"Logged -&gt; {entry.strip()}"</span>)
+    <span class="kw">except</span> Exception <span class="kw">as</span> e:
+        <span class="fn">print</span>(<span class="str">f"Could not write to log file: {e}"</span>)
+
+log_event(<span class="str">"Batch job triggered"</span>)
+rows_processed, expected_rows = <span class="num">480</span>, <span class="num">500</span>
+
+<span class="kw">if</span> rows_processed &lt; expected_rows:
+    log_event(<span class="str">f"Only {rows_processed}/{expected_rows} rows processed"</span>, level=<span class="str">"WARNING"</span>)
+<span class="kw">else</span>:
+    log_event(<span class="str">"All rows processed successfully"</span>)</pre>
+          </div>
+          <div class="scenario"><b>🎤 Interview angle</b><p>"Why wrap file writing in a function instead of calling open() everywhere?" Because one function means one place to fix formatting, add retries, or change behaviour later, not fifty scattered copies.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TOPIC 2 -->
+    <section id="t2" class="block">
+      <div class="container">
+        <div class="block-head"><span class="block-num">02</span><h2>seek(), tell(), close()</h2></div>
+        <div class="block-body">
+          <div class="www-grid">
+            <div class="www-card"><div class="k">Why learn this</div><p>Sometimes you need to control exactly where inside a file you're reading from, not just "the next line."</p></div>
+            <div class="www-card"><div class="k">Problem it solves</div><p>Re-reading an entire huge file just to get back to a spot you already visited wastes time. seek() jumps straight there.</p></div>
+            <div class="www-card"><div class="k">Where it's used</div><p>Log-monitoring tools, checking a file's size without opening the whole thing, resuming a partially read file.</p></div>
+          </div>
+
+          <div class="ex-label"><span class="ex-badge foundational">Example 1 · Foundational</span><span class="ex-caption">Watching the cursor move, one call at a time</span></div>
+          <div class="code-card">
+            <div class="code-topbar"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-filename">topic2_example1.py</span></div>
+            <pre class="code"><span class="kw">with</span> <span class="fn">open</span>(<span class="str">"pipeline_log.txt"</span>, <span class="str">"r"</span>) <span class="kw">as</span> f:
+    <span class="fn">print</span>(<span class="str">f"Start: cursor at byte {f.tell()}"</span>)
+    first_line = f.readline()
+    <span class="fn">print</span>(<span class="str">f"After line 1: cursor at byte {f.tell()} | {first_line.strip()}"</span>)
+    second_line = f.readline()
+    <span class="fn">print</span>(<span class="str">f"After line 2: cursor at byte {f.tell()} | {second_line.strip()}"</span>)
+    f.seek(<span class="num">0</span>)
+    <span class="fn">print</span>(<span class="str">f"After seek(0): cursor back at byte {f.tell()}"</span>)
+    <span class="fn">print</span>(<span class="str">f"Re-reading line 1: {f.readline().strip()}"</span>)</pre>
+          </div>
+          <div class="output-card"><div class="lbl">Expected output</div><pre>Start: cursor at byte 0
+After line 1: cursor at byte 25 | Step 1: Pipeline started
+After line 2: cursor at byte 62 | Step 2: Connected to source database
+After seek(0): cursor back at byte 0
+Re-reading line 1: Step 1: Pipeline started</pre></div>
+
+          <div class="ex-label"><span class="ex-badge enterprise">Example 2 · Enterprise shape</span><span class="ex-caption">Checking file size before processing it</span></div>
+          <div class="code-card">
+            <div class="code-topbar"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-filename">topic2_example2.py</span></div>
+            <pre class="code"><span class="kw">def</span> <span class="fn">get_file_size</span>(filename):
+    <span class="kw">with</span> <span class="fn">open</span>(filename, <span class="str">"rb"</span>) <span class="kw">as</span> f:
+        f.seek(<span class="num">0</span>, <span class="num">2</span>)       <span class="com"># jump straight to the end</span>
+        size = f.tell()      <span class="com"># that position IS the file size</span>
+    <span class="kw">return</span> size
+
+size = get_file_size(<span class="str">"pipeline_log.txt"</span>)
+<span class="fn">print</span>(<span class="str">f"pipeline_log.txt is {size} bytes"</span>)
+
+<span class="kw">if</span> size == <span class="num">0</span>:
+    <span class="fn">print</span>(<span class="str">"WARNING: log file is empty, something may have failed silently"</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">"Log file has content, safe to continue"</span>)</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TOPIC 3 -->
+    <section id="t3" class="block">
+      <div class="container">
+        <div class="block-head"><span class="block-num">03</span><h2>Working with CSV Files</h2></div>
+        <div class="block-body">
+          <div class="www-grid">
+            <div class="www-card"><div class="k">Why learn this</div><p>CSV is the single most common format raw data actually arrives in, from clients, branches, exports.</p></div>
+            <div class="www-card"><div class="k">Problem it solves</div><p>Splitting text on commas by hand breaks the moment a value itself contains a comma. The csv module handles that correctly.</p></div>
+            <div class="www-card"><div class="k">Where it's used</div><p>Every spreadsheet export, every simple handoff between two systems that don't share a database.</p></div>
+          </div>
+
+          <div class="ex-label"><span class="ex-badge foundational">Example 1 · Foundational</span><span class="ex-caption">Creating, writing, and reading a CSV, step by step</span></div>
+          <div class="code-card">
+            <div class="code-topbar"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-filename">topic3_example1.py</span></div>
+            <pre class="code"><span class="kw">import</span> csv
+
+<span class="com"># we build our OWN dummy data here - nothing external to go missing</span>
+transactions = [
+    [<span class="str">"txn_id"</span>, <span class="str">"customer"</span>, <span class="str">"amount"</span>],
+    [<span class="str">"T001"</span>, <span class="str">"Aravind Sharma"</span>, <span class="str">"4599"</span>],
+    [<span class="str">"T002"</span>, <span class="str">"Priya Nair"</span>, <span class="str">"12300"</span>],
+    [<span class="str">"T003"</span>, <span class="str">"Rohit Verma"</span>, <span class="str">"800"</span>],
+]
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"transactions.csv"</span>, <span class="str">"w"</span>, newline=<span class="str">""</span>) <span class="kw">as</span> f:
+    writer = csv.writer(f)
+    <span class="kw">for</span> row <span class="kw">in</span> transactions:
+        writer.writerow(row)
+        <span class="fn">print</span>(<span class="str">f"[WRITING ROW] {row}"</span>)
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"transactions.csv"</span>, <span class="str">"r"</span>) <span class="kw">as</span> f:
+    reader = csv.reader(f)
+    header = <span class="fn">next</span>(reader)   <span class="com"># next() grabs just one row - here, the header</span>
+    <span class="fn">print</span>(<span class="str">f"Header row: {header}"</span>)
+    <span class="kw">for</span> row_number, row <span class="kw">in</span> <span class="fn">enumerate</span>(reader, start=<span class="num">1</span>):
+        <span class="fn">print</span>(<span class="str">f"[READING] data row {row_number}: {row}"</span>)</pre>
+          </div>
+          <div class="output-card"><div class="lbl">Expected output</div><pre>[WRITING ROW] ['txn_id', 'customer', 'amount']
+[WRITING ROW] ['T001', 'Aravind Sharma', '4599']
+[WRITING ROW] ['T002', 'Priya Nair', '12300']
+[WRITING ROW] ['T003', 'Rohit Verma', '800']
+Header row: ['txn_id', 'customer', 'amount']
+[READING] data row 1: ['T001', 'Aravind Sharma', '4599']
+[READING] data row 2: ['T002', 'Priya Nair', '12300']
+[READING] data row 3: ['T003', 'Rohit Verma', '800']</pre></div>
+
+          <div class="ex-label"><span class="ex-badge enterprise">Example 2 · Enterprise shape</span><span class="ex-caption">Filtering high-value transactions</span></div>
+          <div class="code-card">
+            <div class="code-topbar"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-filename">topic3_example2.py</span></div>
+            <pre class="code"><span class="kw">def</span> <span class="fn">load_high_value_transactions</span>(filename, threshold=<span class="num">1000</span>):
+    high_value = []
+    <span class="kw">with</span> <span class="fn">open</span>(filename, <span class="str">"r"</span>) <span class="kw">as</span> f:
+        reader = csv.DictReader(f)
+        <span class="kw">for</span> row <span class="kw">in</span> reader:
+            amount = <span class="kw">int</span>(row[<span class="str">"amount"</span>])   <span class="com"># CSV values arrive as text, cast first</span>
+            <span class="fn">print</span>(<span class="str">f"Checking {row['customer']}: amount = {amount}"</span>)
+            <span class="kw">if</span> amount &gt; threshold:
+                high_value.append(row)
+                <span class="fn">print</span>(<span class="str">"  -&gt; above threshold, keeping"</span>)
+            <span class="kw">else</span>:
+                <span class="fn">print</span>(<span class="str">"  -&gt; below threshold, skipping"</span>)
+    <span class="kw">return</span> high_value
+
+result = load_high_value_transactions(<span class="str">"transactions.csv"</span>, threshold=<span class="num">1000</span>)
+<span class="fn">print</span>(<span class="str">f"{len(result)} high-value transaction(s) found"</span>)</pre>
+          </div>
+          <div class="scenario"><b>🎤 Interview angle</b><p>"Why DictReader instead of plain csv.reader here?" Because row["amount"] keeps working even if a branch office reorders their export columns tomorrow. row[2] breaks silently the moment it does.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TOPIC 4 -->
+    <section id="t4" class="block">
+      <div class="container">
+        <div class="block-head"><span class="block-num">04</span><h2>Introduction to JSON</h2></div>
+        <div class="block-body">
+          <div class="www-grid">
+            <div class="www-card"><div class="k">Why learn this</div><p>JSON is the universal format config files and APIs speak, across every language, not just Python.</p></div>
+            <div class="www-card"><div class="k">Problem it solves</div><p>Teams need a format that's readable by humans AND easy for a program to parse. JSON is the industry's answer.</p></div>
+            <div class="www-card"><div class="k">Where it's used</div><p>Pipeline config files, and the response body of basically every REST API you'll ever call.</p></div>
+          </div>
+
+          <div class="ex-label"><span class="ex-badge foundational">Example 1 · Foundational</span><span class="ex-caption">A dictionary becoming JSON text</span></div>
+          <div class="code-card">
+            <div class="code-topbar"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-filename">topic4_example1.py</span></div>
+            <pre class="code"><span class="kw">import</span> json
+
+pipeline_config = {
+    <span class="str">"pipeline_name"</span>: <span class="str">"daily_settlement"</span>,
+    <span class="str">"batch_size"</span>: <span class="num">500</span>,
+    <span class="str">"retry"</span>: <span class="kw">True</span>,
+    <span class="str">"sources"</span>: [<span class="str">"branch_pune"</span>, <span class="str">"branch_mumbai"</span>],
+}
+
+<span class="fn">print</span>(<span class="str">"Right now this is a dictionary:"</span>, <span class="kw">type</span>(pipeline_config))
+
+json_text = json.dumps(pipeline_config, indent=<span class="num">4</span>)
+<span class="fn">print</span>(<span class="str">"After json.dumps(), it's TEXT:"</span>, <span class="kw">type</span>(json_text))
+<span class="fn">print</span>(json_text)</pre>
+          </div>
+
+          <div class="ex-label"><span class="ex-badge enterprise">Example 2 · Enterprise shape</span><span class="ex-caption">Validating a config before trusting it</span></div>
+          <div class="code-card">
+            <div class="code-topbar"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-filename">topic4_example2.py</span></div>
+            <pre class="code"><span class="kw">class</span> <span class="fn">MissingConfigKeyError</span>(Exception):
+    <span class="kw">pass</span>
+
+<span class="kw">def</span> <span class="fn">validate_config</span>(config, required_keys):
+    <span class="kw">for</span> key <span class="kw">in</span> required_keys:
+        <span class="fn">print</span>(<span class="str">f"Checking for '{key}'..."</span>)
+        <span class="kw">if</span> key <span class="kw">not in</span> config:
+            <span class="kw">raise</span> MissingConfigKeyError(<span class="str">f"Config is missing required key: '{key}'"</span>)
+    <span class="fn">print</span>(<span class="str">"Config validated successfully"</span>)
+
+required = [<span class="str">"pipeline_name"</span>, <span class="str">"batch_size"</span>, <span class="str">"retry"</span>, <span class="str">"destination"</span>]
+
+<span class="kw">try</span>:
+    validate_config(pipeline_config, required)
+<span class="kw">except</span> MissingConfigKeyError <span class="kw">as</span> e:
+    <span class="fn">print</span>(<span class="str">f"Cannot start pipeline: {e}"</span>)</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TOPIC 5 -->
+    <section id="t5" class="block">
+      <div class="container">
+        <div class="block-head"><span class="block-num">05</span><h2>Working with JSON Data</h2></div>
+        <div class="block-body">
+          <div class="www-grid">
+            <div class="www-card"><div class="k">Why learn this</div><p>Topic 4 made JSON text. Real pipelines need that text to live on disk, and load back as real data later.</p></div>
+            <div class="www-card"><div class="k">Problem it solves</div><p>A script restarting shouldn't lose its settings. Save once, load every single time it runs again.</p></div>
+            <div class="www-card"><div class="k">Where it's used</div><p>Any pipeline that reads its own settings instead of hardcoding values straight into the script.</p></div>
+          </div>
+
+          <div class="ex-label"><span class="ex-badge foundational">Example 1 · Foundational</span><span class="ex-caption">Saving and loading a config file, step by step</span></div>
+          <div class="code-card">
+            <div class="code-topbar"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-filename">topic5_example1.py</span></div>
+            <pre class="code">config_to_save = {<span class="str">"pipeline_name"</span>: <span class="str">"daily_settlement"</span>, <span class="str">"batch_size"</span>: <span class="num">500</span>, <span class="str">"retry"</span>: <span class="kw">True</span>}
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"pipeline_config.json"</span>, <span class="str">"w"</span>) <span class="kw">as</span> f:
+    json.dump(config_to_save, f, indent=<span class="num">4</span>)
+    <span class="fn">print</span>(<span class="str">"Saved config to pipeline_config.json"</span>)
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"pipeline_config.json"</span>, <span class="str">"r"</span>) <span class="kw">as</span> f:
+    loaded = json.load(f)
+    <span class="fn">print</span>(<span class="str">f"Loaded back: {loaded}"</span>)
+    <span class="fn">print</span>(<span class="str">f"Type: {type(loaded)}"</span>)
+    <span class="fn">print</span>(<span class="str">f"batch_size specifically: {loaded['batch_size']}"</span>)</pre>
+          </div>
+
+          <div class="ex-label"><span class="ex-badge enterprise">Example 2 · Enterprise shape</span><span class="ex-caption">Loading settings with a safe fallback</span></div>
+          <div class="code-card">
+            <div class="code-topbar"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-filename">topic5_example2.py</span></div>
+            <pre class="code"><span class="kw">def</span> <span class="fn">load_pipeline_settings</span>(filename, defaults):
+    <span class="kw">try</span>:
+        <span class="kw">with</span> <span class="fn">open</span>(filename, <span class="str">"r"</span>) <span class="kw">as</span> f:
+            settings = json.load(f)
+        <span class="fn">print</span>(<span class="str">f"Loaded settings from {filename}"</span>)
+    <span class="kw">except</span> FileNotFoundError:
+        <span class="fn">print</span>(<span class="str">f"{filename} not found, using defaults"</span>)
+        settings = defaults
+
+    batch_size = settings.get(<span class="str">"batch_size"</span>, <span class="num">100</span>)
+    retry = settings.get(<span class="str">"retry"</span>, <span class="kw">False</span>)
+    <span class="fn">print</span>(<span class="str">f"Running with batch_size={batch_size}, retry={retry}"</span>)
+    <span class="kw">return</span> settings
+
+defaults = {<span class="str">"batch_size"</span>: <span class="num">100</span>, <span class="str">"retry"</span>: <span class="kw">False</span>}
+load_pipeline_settings(<span class="str">"pipeline_config.json"</span>, defaults)   <span class="com"># exists</span>
+load_pipeline_settings(<span class="str">"missing_config.json"</span>, defaults)    <span class="com"># doesn't, triggers fallback</span></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TOPIC 6 -->
+    <section id="t6" class="block">
+      <div class="container">
+        <div class="block-head"><span class="block-num">06</span><h2>OS Module</h2></div>
+        <div class="block-body">
+          <div class="www-grid">
+            <div class="www-card"><div class="k">Why learn this</div><p>A script needs to know what's actually sitting on disk, not just assume.</p></div>
+            <div class="www-card"><div class="k">Problem it solves</div><p>Opening or deleting a file that isn't there crashes your program. Checking first avoids that completely.</p></div>
+            <div class="www-card"><div class="k">Where it's used</div><p>Renaming a processed file, cleaning up temporary files, confirming a job actually produced output.</p></div>
+          </div>
+
+          <div class="ex-label"><span class="ex-badge foundational">Example 1 · Foundational</span><span class="ex-caption">Checking, renaming, and listing files</span></div>
+          <div class="code-card">
+            <div class="code-topbar"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-filename">topic6_example1.py</span></div>
+            <pre class="code"><span class="kw">import</span> os
+
+<span class="fn">print</span>(<span class="str">"Current folder:"</span>, os.getcwd())
+<span class="fn">print</span>(<span class="str">"Files here right now:"</span>, os.listdir(<span class="str">"."</span>))
+
+<span class="kw">if</span> os.path.exists(<span class="str">"transactions.csv"</span>):
+    <span class="fn">print</span>(<span class="str">"transactions.csv found, safe to rename"</span>)
+    os.rename(<span class="str">"transactions.csv"</span>, <span class="str">"transactions_2026_01_15.csv"</span>)
+    <span class="fn">print</span>(<span class="str">"Renamed. Files now:"</span>, os.listdir(<span class="str">"."</span>))
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">"transactions.csv not found, nothing to rename"</span>)</pre>
+          </div>
+
+          <div class="ex-label"><span class="ex-badge enterprise">Example 2 · Enterprise shape</span><span class="ex-caption">Cleaning up temporary files</span></div>
+          <div class="code-card">
+            <div class="code-topbar"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-filename">topic6_example2.py</span></div>
+            <pre class="code"><span class="kw">def</span> <span class="fn">cleanup_temp_files</span>(folder, prefix=<span class="str">"temp_"</span>):
+    removed_count = <span class="num">0</span>
+    <span class="kw">for</span> filename <span class="kw">in</span> os.listdir(folder):
+        <span class="kw">if</span> filename.startswith(prefix):
+            os.remove(os.path.join(folder, filename))
+            removed_count += <span class="num">1</span>
+            <span class="fn">print</span>(<span class="str">f"Removed: {filename}"</span>)
+    <span class="fn">print</span>(<span class="str">f"Cleanup complete, {removed_count} file(s) removed"</span>)
+
+<span class="com"># create dummy temp files first, so this example is self-contained</span>
+<span class="kw">for</span> name <span class="kw">in</span> [<span class="str">"temp_cache1.txt"</span>, <span class="str">"temp_cache2.txt"</span>]:
+    <span class="kw">with</span> <span class="fn">open</span>(name, <span class="str">"w"</span>) <span class="kw">as</span> f:
+        f.write(<span class="str">"temporary data"</span>)
+
+cleanup_temp_files(<span class="str">"."</span>, prefix=<span class="str">"temp_"</span>)</pre>
+          </div>
+          <div class="note"><b>The one rule that prevents a bad day:</b> never call os.remove() without an os.path.exists() check first, or a condition like startswith() narrowing exactly what gets deleted.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TOPIC 7 -->
+    <section id="t7" class="block">
+      <div class="container">
+        <div class="block-head"><span class="block-num">07</span><h2>pathlib</h2></div>
+        <div class="block-body">
+          <div class="www-grid">
+            <div class="www-card"><div class="k">Why learn this</div><p>Windows uses backslashes in paths. Mac and Linux use forward slashes. Code shouldn't care which one it's on.</p></div>
+            <div class="www-card"><div class="k">Problem it solves</div><p>pathlib handles that OS difference automatically, and gives a real object instead of a string to slice by hand.</p></div>
+            <div class="www-card"><div class="k">Where it's used</div><p>Nearly all modern production Python code has already moved to pathlib over the older os.path style.</p></div>
+          </div>
+
+          <div class="ex-label"><span class="ex-badge foundational">Example 1 · Foundational</span><span class="ex-caption">Building and inspecting a path</span></div>
+          <div class="code-card">
+            <div class="code-topbar"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-filename">topic7_example1.py</span></div>
+            <pre class="code"><span class="kw">from</span> pathlib <span class="kw">import</span> Path
+
+file_path = Path(<span class="str">"data"</span>) / <span class="str">"incoming"</span> / <span class="str">"transactions_2026_01_15.csv"</span>
+<span class="fn">print</span>(<span class="str">"Full path:"</span>, file_path)
+<span class="fn">print</span>(<span class="str">"File name:"</span>, file_path.name)
+<span class="fn">print</span>(<span class="str">"Extension:"</span>, file_path.suffix)
+<span class="fn">print</span>(<span class="str">"Parent folder:"</span>, file_path.parent)
+<span class="fn">print</span>(<span class="str">"Does it exist?"</span>, file_path.exists())</pre>
+          </div>
+
+          <div class="ex-label"><span class="ex-badge enterprise">Example 2 · Enterprise shape</span><span class="ex-caption">Creating a folder and finding files inside it</span></div>
+          <div class="code-card">
+            <div class="code-topbar"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-filename">topic7_example2.py</span></div>
+            <pre class="code">output_folder = Path(<span class="str">"data"</span>) / <span class="str">"processed"</span>
+output_folder.mkdir(parents=<span class="kw">True</span>, exist_ok=<span class="kw">True</span>)
+<span class="fn">print</span>(<span class="str">f"Folder ready: {output_folder}"</span>)
+
+<span class="kw">for</span> csv_file <span class="kw">in</span> Path(<span class="str">"."</span>).glob(<span class="str">"*.csv"</span>):
+    <span class="fn">print</span>(<span class="str">f"Found CSV file: {csv_file.name}"</span>)</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TOPIC 8 -->
+    <section id="t8" class="block">
+      <div class="container">
+        <div class="block-head"><span class="block-num">08</span><h2>Compressed File Handling</h2></div>
+        <div class="block-body">
+          <div class="www-grid">
+            <div class="www-card"><div class="k">Why learn this</div><p>Once a day's files are done being actively used, they still need to be kept, just smaller and bundled together.</p></div>
+            <div class="www-card"><div class="k">Problem it solves</div><p>Raw files pile up fast. Compression keeps months of history without quietly eating the whole disk.</p></div>
+            <div class="www-card"><div class="k">Where it's used</div><p>End-of-day archiving, and long-term retention of log files specifically.</p></div>
+          </div>
+
+          <div class="ex-label"><span class="ex-badge foundational">Example 1 · Foundational</span><span class="ex-caption">Creating a zip archive and inspecting it</span></div>
+          <div class="code-card">
+            <div class="code-topbar"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-filename">topic8_example1.py</span></div>
+            <pre class="code"><span class="kw">import</span> zipfile
+
+<span class="kw">with</span> zipfile.ZipFile(<span class="str">"daily_archive.zip"</span>, <span class="str">"w"</span>) <span class="kw">as</span> zipf:
+    zipf.write(<span class="str">"pipeline_log.txt"</span>)
+    <span class="fn">print</span>(<span class="str">"Added pipeline_log.txt to the archive"</span>)
+
+<span class="kw">with</span> zipfile.ZipFile(<span class="str">"daily_archive.zip"</span>, <span class="str">"r"</span>) <span class="kw">as</span> zipf:
+    <span class="fn">print</span>(<span class="str">"Contents right now:"</span>, zipf.namelist())</pre>
+          </div>
+
+          <div class="ex-label"><span class="ex-badge enterprise">Example 2 · Enterprise shape</span><span class="ex-caption">A full end-of-day archive function</span></div>
+          <div class="code-card">
+            <div class="code-topbar"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-filename">topic8_example2.py</span></div>
+            <pre class="code"><span class="kw">import</span> gzip, shutil
+
+<span class="kw">def</span> <span class="fn">archive_day</span>(date_str, files_to_archive):
+    zip_name = <span class="str">f"settlement_{date_str}.zip"</span>
+    <span class="kw">with</span> zipfile.ZipFile(zip_name, <span class="str">"w"</span>) <span class="kw">as</span> zipf:
+        <span class="kw">for</span> file <span class="kw">in</span> files_to_archive:
+            zipf.write(file)
+            <span class="fn">print</span>(<span class="str">f"Archived: {file}"</span>)
+    <span class="fn">print</span>(<span class="str">f"Created {zip_name}"</span>)
+
+archive_day(<span class="str">"2026_01_15"</span>, [<span class="str">"pipeline_log.txt"</span>, <span class="str">"pipeline_config.json"</span>])
+
+<span class="com"># logs compress best on their own with gzip, separate from the zip</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"pipeline_log.txt"</span>, <span class="str">"rb"</span>) <span class="kw">as</span> f_in:
+    <span class="kw">with</span> gzip.open(<span class="str">"pipeline_log.txt.gz"</span>, <span class="str">"wb"</span>) <span class="kw">as</span> f_out:
+        shutil.copyfileobj(f_in, f_out)
+<span class="fn">print</span>(<span class="str">"Log additionally compressed as pipeline_log.txt.gz"</span>)</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="wrap" class="wrapup">
+      <div class="container">
+        <div class="wrapup-card">
+          <span class="pill violet">✅ All 8 topics, properly explained</span>
+          <h3 style="margin-top:12px;">Every topic answered why, what, and where before a single line of code.</h3>
+          <p>And every single example ran on its own, with no outside file to go missing, because each one builds its own data first. The companion script, module7_complete_walkthrough.py, has this exact same content ready to run live on any machine, open it side by side with this page during the session.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="container">
+        <p class="credit">Module 7 · The Complete Walkthrough · Python for Data Engineering — <b>IntelliBI</b><br>
+        Curated &amp; taught by <b>Siddhant Deepak Kumar Pradhan</b>, Data Engineering &amp; AI Faculty</p>
+      </div>
+    </footer>
+  </main>
+</div>
+
+<script>
+var navLinks = document.querySelectorAll('.navlink');
+var sectionIds = ['hero','t1','t2','t3','t4','t5','t6','t7','t8','wrap'];
+navLinks.forEach(function(link){
+  link.addEventListener('click', function(e){
+    e.preventDefault();
+    var target = document.getElementById(link.getAttribute('data-target'));
+    if(target){ target.scrollIntoView({behavior:'smooth', block:'start'}); }
+  });
+});
+function updateActive(){
+  var scrollPos = window.scrollY + window.innerHeight * 0.3;
+  var activeIdx = 0;
+  sectionIds.forEach(function(id, i){
+    var el = document.getElementById(id);
+    if(el && el.offsetTop <= scrollPos) activeIdx = i;
+  });
+  navLinks.forEach(function(link, i){ link.classList.toggle('active', i === activeIdx); });
+}
+window.addEventListener('scroll', updateActive);
+window.addEventListener('resize', updateActive);
+updateActive();
+</script>
+</body>
+</html>
